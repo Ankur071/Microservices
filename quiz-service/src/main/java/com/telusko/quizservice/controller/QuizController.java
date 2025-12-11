@@ -1,35 +1,36 @@
-package com.telusko.quizapp.controller;
+package com.telusko.quizservice.controller;
 
-import com.telusko.quizapp.model.QuestionWrapper;
-import com.telusko.quizapp.model.Response;
-import com.telusko.quizapp.service.QuizService;
-import lombok.RequiredArgsConstructor;
+import com.telusko.quizservice.model.QuestionWrapper;
+import com.telusko.quizservice.model.QuizDto;
+import com.telusko.quizservice.model.Response;
+import com.telusko.quizservice.service.QuizService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("quiz")
 public class QuizController {
 
-    private final QuizService quizService;
+    @Autowired
+    QuizService quizService;
 
     @PostMapping("create")
-    public ResponseEntity<String> createQuiz(@RequestParam String category,
-                                             @RequestParam int noOfQuestions,
-                                             @RequestParam String title){
-        return quizService.createQuiz(category, noOfQuestions, title);
+    public ResponseEntity<String> createQuiz(@RequestBody QuizDto quizDto){
+        return quizService.createQuiz(quizDto.getCategoryName(), quizDto.getNumQuestions(), quizDto.getTitle());
     }
 
-    @GetMapping("get/{id}")
+    @PostMapping("get/{id}")
     public ResponseEntity<List<QuestionWrapper>> getQuizQuestions(@PathVariable Integer id){
         return quizService.getQuizQuestions(id);
     }
 
     @PostMapping("submit/{id}")
     public ResponseEntity<Integer> submitQuiz(@PathVariable Integer id, @RequestBody List<Response> responses){
-        return quizService.submitQuiz(id, responses);
+        return quizService.calculateResult(id, responses);
     }
+
+
 }
